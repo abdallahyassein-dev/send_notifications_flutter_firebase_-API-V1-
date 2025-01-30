@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:send_notification_example/main.dart';
+import 'package:send_notification_example/send_notification_services.dart';
 
 class MessagingConfig {
   static initFirebaseMessaging() async {
@@ -43,13 +46,16 @@ class MessagingConfig {
 
     flutterLocalNotificationsPlugin!.initialize(
       initializationSettings,
-      onDidReceiveNotificationResponse: (payload) {
-        log("payload1: ${payload.toString()}");
-        try {
-          log("payload: ${payload.toString()}");
-        } catch (e) {
-          log("Exception: $e");
-        }
+      onDidReceiveNotificationResponse: (NotificationResponse payload) {
+        log("payload1: ${payload.payload.toString()}");
+        // try {
+        //   log(payload.payload.toString());
+        //   handleNotification(
+        //       navigatorKey.currentContext!, jsonDecode(payload.payload ?? ""));
+        //   log("payload: ${payload.toString()}");
+        // } catch (e) {
+        //   log("Exception: $e");
+        // }
         return;
       },
     );
@@ -71,6 +77,7 @@ class MessagingConfig {
         log(notification.title.toString());
         // var jsdata = json.decode(notification!.body!);
         var body = notification.body;
+        handleNotification(navigatorKey.currentContext!, event.data);
         flutterLocalNotificationsPlugin!.show(
             notification.hashCode,
             notification.title,
@@ -84,19 +91,18 @@ class MessagingConfig {
       } catch (err) {
         log(err.toString());
       }
-      //   Fluttertoast.showToast(
-      //     msg: event.notification!.title.toString() + "\n" + event.notification!.body.toString(),
-      //     toastLength: Toast.LENGTH_SHORT,
-      //     gravity: ToastGravity.CENTER,
-      //     timeInSecForIosWeb: 1,
-      //     backgroundColor: Colors.greenAccent,
-      //     textColor: Colors.white,
-      //     fontSize: 16.0
-      // );
-      //  log(event.notification!.body.toString());
     });
-    FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      log('Message clicked!');
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) {
+      if (message != null) {
+        handleNotification(navigatorKey.currentContext!, message.data);
+      }
+    });
+
+    // Handle notification when the app is in the background
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      handleNotification(navigatorKey.currentContext!, message.data);
     });
   }
 

@@ -1,13 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:googleapis_auth/auth_io.dart' as auth;
+import 'package:send_notification_example/product_details_screen.dart';
 
 Future<String> getAccessToken() async {
   final jsonString = await rootBundle.loadString(
-    'JSON PATH',
+    'assets/notifications_key/testsignin-1a319-57ebc71dac95.json',
   );
 
   final accountCredentials =
@@ -19,10 +21,14 @@ Future<String> getAccessToken() async {
   return client.credentials.accessToken.data;
 }
 
-Future<void> sendNotification(String token, String title, String body) async {
+Future<void> sendNotification(
+    {required String token,
+    required String title,
+    required String body,
+    required Map<String, String> data}) async {
   final String accessToken = await getAccessToken();
   final String fcmUrl =
-      'https://fcm.googleapis.com/v1/projects/PROOJECT_ID/messages:send';
+      'https://fcm.googleapis.com/v1/projects/{PROJECT_ID}/messages:send';
 
   final response = await http.post(
     Uri.parse(fcmUrl),
@@ -37,6 +43,19 @@ Future<void> sendNotification(String token, String title, String body) async {
           'title': title,
           'body': body,
         },
+        'data': data, // Add custom data here
+        'android': {
+          'notification': {
+            'click_action':
+                'FLUTTER_NOTIFICATION_CLICK', // Required for tapping to trigger response
+            'channel_id': 'high_importance_channel'
+          },
+        },
+        'apns': {
+          'payload': {
+            'aps': {'content-available': 1},
+          },
+        },
       },
     }),
   );
@@ -45,5 +64,18 @@ Future<void> sendNotification(String token, String title, String body) async {
     print('Notification sent successfully');
   } else {
     print('Failed to send notification: ${response.body}');
+  }
+}
+
+void handleNotification(BuildContext context, Map<String, dynamic> data) {
+  String route = data['route'];
+  String id = data['id'];
+
+  if (route == '/product_detials') {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => ProductDetailsScreen(productId: id)),
+    );
   }
 }

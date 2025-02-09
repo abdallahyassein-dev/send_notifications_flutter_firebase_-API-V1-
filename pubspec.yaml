@@ -63,7 +63,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/notifications_key/testsignin-1a319-57ebc71dac95.json
+    - assets/notifications_key/testsignin-1a319-f951911b6a71.json
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

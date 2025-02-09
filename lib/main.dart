@@ -56,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: ElevatedButton(
               onPressed: () {
                 sendNotification(
-                    token: 'FCM_TOKEN_TO_SEND_NOTIFICATION',
+                    token: 'FCM_TOKEN',
                     title: 'Hello Abdallah!',
                     body: 'This is a new test notification.',
                     data: {

@@ -9,7 +9,7 @@ import 'package:send_notification_example/product_details_screen.dart';
 
 Future<String> getAccessToken() async {
   final jsonString = await rootBundle.loadString(
-    'assets/notifications_key/testsignin-1a319-57ebc71dac95.json',
+    'assets/notifications_key/testsignin-1a319-f951911b6a71.json',
   );
 
   final accountCredentials =
@@ -28,7 +28,7 @@ Future<void> sendNotification(
     required Map<String, String> data}) async {
   final String accessToken = await getAccessToken();
   final String fcmUrl =
-      'https://fcm.googleapis.com/v1/projects/{PROJECT_ID}/messages:send';
+      'https://fcm.googleapis.com/v1/projects/"PROJECT_ID"/messages:send';
 
   final response = await http.post(
     Uri.parse(fcmUrl),
@@ -44,8 +44,10 @@ Future<void> sendNotification(
           'body': body,
         },
         'data': data, // Add custom data here
+
         'android': {
           'notification': {
+            "sound": "custom_sound",
             'click_action':
                 'FLUTTER_NOTIFICATION_CLICK', // Required for tapping to trigger response
             'channel_id': 'high_importance_channel'
@@ -53,7 +55,7 @@ Future<void> sendNotification(
         },
         'apns': {
           'payload': {
-            'aps': {'content-available': 1},
+            'aps': {"sound": "custom_sound.caf", 'content-available': 1},
           },
         },
       },
